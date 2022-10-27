@@ -9,10 +9,25 @@
 
     <Button
         android:id="@+id/btn_public"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="124dp"
+        android:layout_height="61dp"
         android:onClick="publicarD1"
-        android:text="ENCENDER"
+        android:text="ON"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.243" />
+
+    <Button
+        android:id="@+id/boton_apagar"
+        android:layout_width="133dp"
+        android:layout_height="55dp"
+        android:onClick="publicarD2"
+        android:text="OFF"
+        tools:layout_editor_absoluteX="143dp"
+        tools:layout_editor_absoluteY="403dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.445"
