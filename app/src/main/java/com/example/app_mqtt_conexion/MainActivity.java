@@ -10,14 +10,11 @@ import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,12 +28,14 @@ public class MainActivity extends AppCompatActivity {
     static String MQTTHOST = "tcp://68.183.119.177"; //el broker
     //static String USERNAME = "accesobroker";          //el token de acceso
     //static String PASSWORD = "zxcvbnmz";             //la contraceña del token
-
     MqttAndroidClient client;              //  clienteMQTT este dispositivo
-    MqttConnectOptions options;            // para meter parametros a la conexion
+        MqttConnectOptions options;            // para meter parametros a la conexion
+    /*
+    textview se ocupara para mostrar datos de temperatura en el mqtt
+     */
+     private  TextView temp;
 
-
-   @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -51,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
        //options.setUserName(USERNAME);
        //options.setPassword(PASSWORD.toCharArray());
        checar_conexion();//revisamos la conexion
+   //traer objeto
+        temp= findViewById(R.id.ttemp);
     }
     private void obtener_nombre_Dispositivo() {
         String fabricante = Build.MANUFACTURER;
@@ -78,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // mensaje de conectado
                     Toast.makeText(getBaseContext(), "Conectado ", Toast.LENGTH_SHORT).show();
+                subscribe();
                 }
-
                 @Override//si falla la conexion
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     // mensaje de que no se conecto
@@ -111,10 +112,33 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
+    public void subscribe(){
+        try {
+            client.subscribe("st/01",0);
+            // listener que espera respuesta
+         client.setCallback(new MqttCallback() {
+             @Override
+             public void connectionLost(Throwable cause) {
+             }
+             @Override
+             public void messageArrived(String topic, MqttMessage message) throws Exception {
+                 String oli;
+                  if (topic.matches("st/01")) {
+                      oli=new String(message.getPayload());
+                      temp.setText(oli);
+                 }
+             }
+             @Override
+             public void deliveryComplete(IMqttDeliveryToken token) {
+             }
+         });
+        }catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
     public  void  publicarD1 (View v) {
-        String tema="st";///corrrespode al tema de LED
-        String  menssage="ON";
+        String tema="mg/02";///corrrespode al tema de LED
+        String  menssage="1";
         publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
         intento_publicar=true;//si intento publicar
         checar_conexion();//revisamos la conexion
@@ -134,8 +158,94 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public  void  publicarD2 (View v) {
-        String tema="st";///corrrespode al tema de LED
-        String  menssage="OFF";
+        String tema="mg/02";///corrrespode al tema de LED
+        String  menssage="0";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
+    //segunda led
+    public  void  publicarD3 (View v) {
+        String tema="mg/16";///corrrespode al tema de LED
+        String  menssage="1";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
+    public  void  publicarD4 (View v) {
+        String tema="mg/16";///corrrespode al tema de LED
+        String  menssage="0";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
+    //tercera led
+    public  void  publicarD5 (View v) {
+        String tema="mg/14";///corrrespode al tema de LED
+        String  menssage="1";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
+    public  void  publicarD6(View v) {
+        String tema="mg/14";///corrrespode al tema de LED
+        String  menssage="0";
         publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
         intento_publicar=true;//si intento publicar
         checar_conexion();//revisamos la conexion
@@ -155,4 +265,47 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //4ta led
+    public  void  publicarD7 (View v) {
+        String tema="mg/15";///corrrespode al tema de LED
+        String  menssage="1";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
+    public  void  publicarD8 (View v) {
+        String tema="mg/15";///corrrespode al tema de LED
+        String  menssage="0";
+        publicaste= "publicaras " + tema + " " + menssage; //concatenamos el dato a publicar
+        intento_publicar=true;//si intento publicar
+        checar_conexion();//revisamos la conexion
+
+        if (permiso_publicar){
+
+            try {
+                int qos=0;//indica la prioridad del mensaje.
+                // 0:envio una vez,
+                // 1:se envia hasta garantizar la entrega en caso de fallo resive duplicados
+                //2: se  garantiza que se entrege al subcribtor unicamente una vez
+                //retenid=false;//true es que el mensaje se quede guardado en el broker asta su actualizacion
+                client.publish(tema, menssage.getBytes(),qos, false);
+                Toast.makeText(getBaseContext(), publicaste, Toast.LENGTH_SHORT).show();
+            }catch (Exception e){e.printStackTrace();}
+        }
+
+    }
 }
