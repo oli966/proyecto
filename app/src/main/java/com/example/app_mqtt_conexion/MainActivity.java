@@ -121,5 +121,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
+    public void finalizar(View v){
+        finish();
+    }
 }
