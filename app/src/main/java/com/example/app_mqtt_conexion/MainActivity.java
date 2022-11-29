@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void subscribe(){
         try {
-            client.subscribe("st/01",0);
+            client.subscribe("omb/01",0);
             // listener que espera respuesta
          client.setCallback(new MqttCallback() {
              @Override
@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
              @Override
              public void messageArrived(String topic, MqttMessage message) throws Exception {
                  String oli;
-                  if (topic.matches("st/01")) {
+                  if (topic.matches("omb/01")) {
                       oli=new String(message.getPayload());
-                      temp.setText(oli);
+                      temp.setText(oli+" ºC");
                  }
              }
              @Override
